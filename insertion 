@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Définition de la structure d'un nœud de la liste
+typedef struct Node {
+    int data;
+    struct Node *next;
+    struct Node *prev;
+} Node;
+
+// Fonction pour créer un nouveau nœud
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Erreur d'allocation mémoire.\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    return newNode;
+}
+
+// Fonction pour insérer un élément dans une liste doublement chaînée triée
+void insertSorted(Node** head, int data) {
+    Node* newNode = createNode(data);
+    Node* current;
+
+    // Cas 1: La liste est vide
+    if (*head == NULL) {
+        *head = newNode;
+    }
+    // Cas 2: Le nouvel élément doit être inséré au début
+    else if ((*head)->data >= newNode->data) {
+        newNode->next = *head;
+        (*head)->prev = newNode;
+        *head = newNode;
+    }
+    // Cas 3: Le nouvel élément doit être inséré à la fin ou au milieu
+    else {
+        current = *head;
+        while (current->next != NULL && current->next->data < newNode->data) {
+            current = current->next;
+        }
+        newNode->next = current->next;
+        newNode->prev = current;
+        if (current->next != NULL) {
+            current->next->prev = newNode;
+        }
+        current->next = newNode;
+    }
+}
+
+// Fonction pour afficher la liste
+void printList(Node* head) {
+    Node* current = head;
+    while (current != NULL) {
+        printf("%d <-> ", current->data);
+        current = current->next;
+    }
+    printf("NULL\n");
+}
+
+// Fonction pour libérer la mémoire de la liste
+void freeList(Node** head) {
+    Node* current = *head;
+    Node* next;
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+    *head = NULL;
+}
+
+int main() {
+    Node* head = NULL; // Initialisation de la liste vide
+    int choix, data;
+
+    while (1) {
+        printf("Menu:\n");
+        printf("1. Insérer un élément dans la liste\n");
+        printf("2. Afficher la liste\n");
+        printf("3. Quitter\n");
+        printf("Choisissez une option : ");
+        scanf("%d", &choix);
+
+        switch (choix) {
+            case 1:
+                printf("Entrez la valeur de l'élément : ");
+                scanf("%d", &data);
+                insertSorted(&head, data);
+                break;
+            case 2:
+                printf("Liste actuelle : ");
+                printList(head);
+                break;
+            case 3:
+                freeList(&head);
+                return 0;
+            default:
+                printf("Option invalide. Veuillez réessayer.\n");
+        }
+    }
+
+    return 0;
+}
